@@ -26,13 +26,16 @@
         for (let i = 0; i < checkLength; i++)
         {
             cacheWords[i] = new Array(25); 
+            for (let j = 0; j < 25; j++) {
+                cacheWords[i][j] = new Set();
+            }
         }
         var indexes = [], i = -1;
         while ((i = letters.indexOf(checkWord[0], i+1)) != -1){
             indexes.push(i);
             cacheWords[checkLength - 1][i] = new Set([letters[i]]);
-            nextmoves([Math.floor(i / 5), i % 5], checkLength - 1);
         }
+        nextmoves(checkLength - 1);
         console.log(cacheWords);
 
         values = cacheWords[0].map(a => Array.from(a).join(" ")).join("\n");
@@ -45,41 +48,44 @@
     ]; // kings moves in (dx, dy)
 
 
-    let nextmoves = (coord, count) => {
-        if (0 === count)
-        {
-            return;
+    let nextmoves = (count) => {
+        if (count == 0) return;
+
+        for (let y = 0; y < 25; y++) {
+            var coord = [Math.floor(y/5), y%5];
+            
+            for (let i = 0; i < kingsmoves.length; i++) {
+                let move = kingsmoves[i];
+                let nextX = coord[0] + move[0];
+                let nextY = coord[1] + move[1];
+                
+                
+                if (nextX >= 5 || nextY >= 5 || nextX < 0 || nextY < 0)
+                    continue;
+            
+                
+                var prevIndex = coord[0] * 5 + coord[1] % 5;
+                var nextIndex = nextX * 5 + nextY % 5;
+                var currLetter = letters[nextIndex];
+
+                if (prevIndex > 25 || nextIndex > 25)
+                    console.log(coord, nextX, nextY);
+    
+                
+                if (cacheWords[count][prevIndex] == null)
+                    cacheWords[count][prevIndex] = new Set();
+    
+                if (cacheWords[count - 1][nextIndex] == null)
+                    cacheWords[count - 1][nextIndex] = new Set();
+    
+                var newWords = Array.from(cacheWords[count][prevIndex]).map(a => a + currLetter);
+                console.log("filter", checkWord, newWords);
+                newWords = newWords.filter(a => checkWord.startsWith(a));
+                cacheWords[count - 1][nextIndex] = cacheWords[count - 1][nextIndex].union(new Set(newWords));
+
+            }
         }
-
-        for (let i = 0; i < kingsmoves.length; i++) {
-            let move = kingsmoves[i];
-            let nextX = coord[0] + move[0];
-            let nextY = coord[1] + move[1];
-            
-            
-            if (nextX > 5 || nextY > 5 || nextX < 0 || nextY < 0)
-            continue;
-        
-            
-            var prevIndex = coord[0] * 5 + coord[1] % 5;
-            var nextIndex = nextX * 5 + nextY % 5;
-            var currLetter = letters[nextIndex];
-
-            
-            if (cacheWords[count][prevIndex] == null)
-                cacheWords[count][prevIndex] = new Set();
-
-            if (cacheWords[count - 1][nextIndex] == null)
-                cacheWords[count - 1][nextIndex] = new Set();
-
-            var newWords = Array.from(cacheWords[count][prevIndex]).map(a => a + currLetter);
-            console.log("filter", checkWord, newWords);
-            newWords = newWords.filter(a => checkWord.startsWith(a));
-            cacheWords[count - 1][nextIndex] = cacheWords[count - 1][nextIndex].union(new Set(newWords));
-            
-            nextmoves([nextX, nextY], count - 1);
-        }
-
+        nextmoves(count - 1);
     }
 </script>
 <small>Load letters:</small>
