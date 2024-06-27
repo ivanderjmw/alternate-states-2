@@ -5,7 +5,7 @@
     import { census } from "./census.js";
 
     let letters = Array(25);
-    let loadletters = "A,B,D,E,E,F,G,H,I,J,D,D,X,S,K,D,E,D,C,D,D,S,E,S,D";
+    let loadletters = "W,Y,I,H,A,G,H,O,D,J,D,D,X,S,K,D,E,D,C,D,D,S,E,S,D";
     let values = [];
     let cacheWords = undefined;
     for (let index = 0; index < letters.length; index++) {
@@ -15,16 +15,18 @@
 
     let calcPoints = () => {
         points = 0;
+        values = [];
         Object.keys(census).forEach(k => {
             if(check(k.toUpperCase()))
+            {
                 points += census[k];
+                values.push(k);
+            }
         });
     }
-        
 
     let check = (checkWord) => {
         console.log("Check is called", checkWord);
-        values = [];
         let checkLength = checkWord.length;
         if (checkWord == "" || checkWord == null)
             return;
@@ -33,18 +35,13 @@
         {
             cacheWords[i] = new Array(25); 
             for (let j = 0; j < 25; j++) {
-                cacheWords[i][j] = new Set();
+                cacheWords[i][j] = i == checkLength - 1 ? new Set([letters[j]]) : new Set();
             }
-        }
-        var indexes = [], i = -1;
-        while ((i = letters.indexOf(checkWord[0], i+1)) != -1){
-            indexes.push(i);
-            cacheWords[checkLength - 1][i] = new Set([letters[i]]);
         }
         nextmoves(checkLength - 1, checkWord);
         // console.log(cacheWords);
 
-        values = cacheWords[0].filter(a => a.size > 0).map(a => Array.from(a).join(" ")).join("\n");
+        // values = cacheWords[0].filter(a => a.size > 0).map(a => Array.from(a).join(" ")).join("\n");
 
         // console.log(cacheWords, values);
 
@@ -88,17 +85,27 @@
     
                 var newWords = Array.from(cacheWords[count][prevIndex]).map(a => a + currLetter);
                 // console.log("filter", checkWord, newWords);
-                newWords = newWords.filter(a => checkWord.startsWith(a));
+                newWords = newWords.filter(a => isOneLetterDiff(checkWord,a));
                 cacheWords[count - 1][nextIndex] = cacheWords[count - 1][nextIndex].union(new Set(newWords));
 
             }
         }
         nextmoves(count - 1, checkWord);
     }
+
+    let isOneLetterDiff = (a, b) => {
+        let diff = 0;
+        for (let i = 0; i < Math.min(a.length, b.length); i++) {
+            if (a[i] != b[i])
+                diff++;
+        }
+        return diff <= 1;
+    }
 </script>
 <small>Load letters:</small>
 <input bind:value={loadletters} maxlength="50">
 <button on:click={() => letters = (loadletters + " ").split(',').map(l => l.trim())}>Load</button>
+<button on:click={() => letters = ("1,".repeat(24) + "1").split(',').map(l => l.trim())}>Clear</button>
 <div style="display: block;height:2em"></div>
 <!-- <small>Check word:</small>
 <input bind:value={checkWord}> -->
@@ -115,7 +122,16 @@
 <div>
     <small>{letters}</small>
     <small>Points: {points}</small>
-    <small>Values: {values}</small>
+    <small>Values: {values.join(' ')}</small>
+</div>
+<div style="display: block;height:2em"></div>
+<div>
+    <table>
+        {#each Object.keys(census) as key (key)}
+        <tr style="background-color:{values.some(v => v == key) ? 'yellow' : 'red'}"><td>{key.toUpperCase()}</td> <td>{census[key]}</td></tr>
+        {/each}
+
+    </table>
 </div>
 
 <style>
