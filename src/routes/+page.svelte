@@ -1,7 +1,8 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<h1 class="text-4xl font-bold">janestreet: alternate-states-2</h1>
 
 <script lang="ts">
+    import Button from "$lib/components/ui/button/button.svelte";
+    import Input from "$lib/components/ui/input/input.svelte";
     import { census } from "./census.js";
 
     let letters = Array(25);
@@ -39,11 +40,6 @@
             }
         }
         nextmoves(checkLength - 1, checkWord);
-        // console.log(cacheWords);
-
-        // values = cacheWords[0].filter(a => a.size > 0).map(a => Array.from(a).join(" ")).join("\n");
-
-        // console.log(cacheWords, values);
 
         return cacheWords[0].some(a => a.size > 0);
     }
@@ -102,43 +98,41 @@
         return diff <= 1;
     }
 </script>
+<div style="display: block;height:2em"></div>
+<div class="mx-auto flex items-center justify-center gap-2">
 <small>Load letters:</small>
-<input bind:value={loadletters} maxlength="50">
-<button on:click={() => letters = (loadletters + " ").split(',').map(l => l.trim())}>Load</button>
-<button on:click={() => letters = ("1,".repeat(24) + "1").split(',').map(l => l.trim())}>Clear</button>
-<div style="display: block;height:2em"></div>
-<!-- <small>Check word:</small>
-<input bind:value={checkWord}> -->
-<button on:click={() => calcPoints()}>Check</button>
-<div style="display: block;height:2em"></div>
-<div>
-    {#each Array.from(letters.keys()) as row (row)}
-        <input class="one-letter" bind:value={letters[row]} maxlength="1" oninput="this.value = this.value.toUpperCase()">
-        {#if row % 5 === 4}
-            <br/>
-        {/if}
-    {/each}
-</div>
-<div>
-    <small>{letters}</small>
-    <small>Points: {points}</small>
-    <small>Values: {values.join(' ')}</small>
+<Input bind:value={loadletters} class="max-w-32" />
+<Button on:click={() => letters = (loadletters + " ").split(',').map(l => l.trim())}>Load</Button>
+<Button on:click={() => letters = ("1,".repeat(24) + "1").split(',').map(l => l.trim())}>Clear</Button>
+<Button on:click={() => calcPoints()}>Check</Button>
 </div>
 <div style="display: block;height:2em"></div>
-<div>
-    <table>
-        {#each Object.keys(census) as key (key)}
-        <tr style="background-color:{values.some(v => v == key) ? 'yellow' : 'red'}"><td>{key.toUpperCase()}</td> <td>{census[key]}</td></tr>
-        {/each}
 
+<div class="grid grid-cols-1 md:grid-cols-2 w-max mx-auto">
+<div>
+    <div class="mx-auto w-max grid gap-2 grid-cols-5 text-center justify-center place-items-center">
+        {#each Array.from(letters.keys()) as row (row)}
+            <input class="rounded h-16 w-16 bg-slate-300 text-center text-3xl font-extrabold" bind:value={letters[row]} maxlength="1" oninput="this.value = this.value.toUpperCase()">
+        {/each}
+    </div>
+    <div class="flex flex-col">
+        <small>{letters}</small>
+        <small>Points: {points}</small>
+        <small>Values: {values.join(' ')}</small>
+    </div>
+</div>
+<div class="mx-auto w-max">
+    <table class="table-auto">
+        <thead>
+        <tr class="bg-slate-200"><th>City</th><th>Points</th></tr>
+    </thead>
+    <tbody>
+        {#each Object.keys(census).sort((a, b) => values.some(v => v == b) - values.some(v => v == a)) as key (key)}
+        <tr style="background-color:{values.some(v => v == key) ? 'yellow' : 'red'}">
+            <td class="text-center w-32" >{key.toUpperCase()}</td>
+            <td class="text-center w-32" >{census[key]}</td></tr>
+        {/each}
+    </tbody>
     </table>
 </div>
-
-<style>
-    input.one-letter {
-        height:30px;
-        width:30px;
-        text-align: center;
-        margin: 5px;
-    }
-</style>
+</div>
