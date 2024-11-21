@@ -1,4 +1,4 @@
-<h1 class="text-4xl font-bold">janestreet: alternate-states-2</h1>
+<h1 class="text-4xl font-bold"><a class="hover:text-orange-900" href="https://www.janestreet.com/puzzles/altered-states-2-index/">janestreet: altered states 2</a> </h1>
 
 <script lang="ts">
     import Button from "$lib/components/ui/button/button.svelte";
@@ -17,6 +17,8 @@
     let calcPoints = () => {
         points = 0;
         values = [];
+        letters = letters.map(l => l == "" ? " " : l);
+        console.log(letters)
         Object.keys(census).forEach(k => {
             if(check(k.toUpperCase()))
             {
@@ -120,6 +122,9 @@
         <small>Points: {points}</small>
         <small>Values: {values.join(' ')}</small>
     </div>
+<small>©2024 Ivander</small><br/>
+<small class="hover:text-orange-800"><a href="https://github.com/ivanderjmw"><i class="fa-brands fa-github"></i> ivanderjmw</a></small>
+
 </div>
 <div class="mx-auto w-max">
     <table class="table-auto">
